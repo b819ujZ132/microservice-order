@@ -10,6 +10,16 @@
                 "${workspaceFolder}/order.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "logs",
+            "command": "rm",
+            "type": "shell",
+            "args": [
+                "-rf",
+                "${workspaceFolder}/logs"
+            ],
+            "problemMatcher": []
         }
     ]
 }
