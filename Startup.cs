@@ -53,6 +53,9 @@ namespace order
         // Empty for now
       });
 
+      // Filters
+      services.AddFilters();
+
       // Dependency Injection
       services.AddDependencies();
     }

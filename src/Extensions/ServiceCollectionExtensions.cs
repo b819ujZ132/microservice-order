@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 using order.DAL;
+using order.Filters;
 using order.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using System.IO;
@@ -40,6 +41,14 @@ namespace order.Extensions
     {
       services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
       services.AddResponseCompression();
+    }
+
+    public static void AddFilters(this IServiceCollection services)
+    {
+      services.AddMvc(options =>
+      {
+        options.Filters.Add(typeof(SessionHeadersFilter));
+      });
     }
 
     public static void AddDependencies(this IServiceCollection services)

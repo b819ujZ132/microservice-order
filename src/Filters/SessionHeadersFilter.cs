@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using order.Services;
 
-namespace order.Middleware
+namespace order.Filters
 {
   public class SessionHeadersFilter : IActionFilter
   {
