@@ -2,24 +2,12 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
-using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Threading.Tasks;
-using order.Services;
-using order.DAL;
-
+using order.Extensions;
 
 namespace order
 {
@@ -40,37 +28,24 @@ namespace order
     public void ConfigureServices(IServiceCollection services)
     {
       services.AddMvcCore()
-          .AddApiExplorer();
+        .AddApiExplorer();
 
-      // Swagger documentation
-      services.AddSwaggerGen(c =>
-      {
-        c.SwaggerDoc("v1", new Info
-          {
-            Version = "v1",
-            Title = "Order",
-            Description = "An example order API",
-            License = new License {
-              Name = "MIT",
-              Url = "https://opensource.org/licenses/MIT"
-            }          
-          });
-
-        c.IncludeXmlComments(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "Swagger.xml"));
-      });
+      // Swagger
+      services.AddSwagger();
 
       // Compression
-      services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Optimal);
-      services.AddResponseCompression();
+      services.AddCompression();
 
       // CORS
       services.AddCors();
 
       // Databases
+      /*
       using (var client = new AmazonSecretsManagerClient())
       {
         // TODO: Add client library and use AWS KMS to fetch secret keys
       }
+      */
 
       // AutoMapper
       Mapper.Initialize(cfg =>
@@ -79,28 +54,30 @@ namespace order
       });
 
       // Dependency Injection
-      services
-
-        // Session
-        .AddScoped<SessionService>()
-        .AddScoped<ISessionRepository, SessionRepository>()
-
-        // Order
-        .AddScoped<OrderService>()
-        .AddScoped<IOrderRepository, OrderRepository>()
-
-        // Unit of Work
-        .AddScoped<IUnitOfWork, UnitOfWork>();
+      services.AddDependencies();
     }
 
     /// <summary>
     /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     /// </summary>
-    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory factory)
     {
       app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
       // TODO: Add logger middleware for production environment
+      // app.UseMiddleware();
+
+      if (env.IsDevelopment())
+      {
+        app.UseDeveloperExceptionPage();
+        app.UseDatabaseErrorPage();
+      }
+      else
+      {
+        app.UseHsts();
+      }
+
+      app.UseResponseCompression();
 
       app.UseHttpsRedirection();
 
@@ -110,12 +87,12 @@ namespace order
     /// <summary>
     /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     /// </summary>
-    public void ConfigureDevelopment(IApplicationBuilder app, IHostingEnvironment env)
+    public void ConfigureDevelopment(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory factory)
     {
       app.UseSwagger();
       app.UseSwaggerUI();
 
-      Configure(app, env);
+      Configure(app, env, factory);
     }
   }
 }
