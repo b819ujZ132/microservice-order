@@ -7,7 +7,7 @@ Compiling, but untested.
 * Swap to model library.
 * Add swagger annotations all throughout project.
 * Finishing hooking up to AWS Secrets and RDS instance.
-* Swap session support to consumable client (considering SOAP to showcase WCF).
+* Swap session support to consumable AWS client (AWS Session State service).
 * Add product support via consumable client (considering SOAP to showcase WCF).
 * Confirm Docker integration.
 * Add validators.
